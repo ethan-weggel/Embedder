@@ -6,8 +6,10 @@
 #include <iostream>
 
 class Node {
+
 private:
     // Private info fields
+    static int instCnt;
     int id;
     std::string type;
     double input;
@@ -20,6 +22,12 @@ private:
 public:
     // Default constructor
     Node();
+
+    // typed and indexed constructor
+    Node(std::string type, int id);
+
+    // destructor
+    ~Node();
 
     // Getter methods
     int getId() const;
@@ -44,6 +52,15 @@ public:
     // Additional methods
     void addForwardNode(Node* node);
     void addPreviousNode(Node* node);
+
+    // Clears node of input, output, error and gradient
+    void clear();
+
+    // Reset synapses [clears all prev and forward ptr connections]
+    void clearSynapses();
+
+    // Simple display function to see current node internals
+    void print();
 };
 
 #endif 
