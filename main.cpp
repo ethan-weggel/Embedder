@@ -1,5 +1,6 @@
 #include "vector/vector.h"
 #include "node/node.h"
+#include "network/network.h"
 #include "reader/reader.h"
 #include <vector>
 #include <iostream>
@@ -19,6 +20,17 @@ std::vector<double> initializeWeights(int size, double mean = 0.0f, double stdde
         weight = dis(gen);
     }
     return weights;
+}
+
+std::vector<double> initializeOneHotVectors(std::vector<std::string> uniqueWords, std::string word) {
+
+        std::vector<double> hotVector(uniqueWords.size(), 0.0);
+
+        auto it = std::find(uniqueWords.begin(), uniqueWords.end(), word);
+        int index = std::distance(uniqueWords.begin(), it);
+        hotVector[index] = 1;
+
+        return hotVector;
 }
 
 std::unordered_map<std::string, Vector> oneHotEncodeData(std::string input) {
@@ -51,11 +63,7 @@ std::unordered_map<std::string, Vector> oneHotEncodeData(std::string input) {
 
         Vector vector = Vector();
 
-        std::vector<int> hotVector(uniqueWords.size(), 0);
-
-        auto it = std::find(uniqueWords.begin(), uniqueWords.end(), word);
-        int index = std::distance(uniqueWords.begin(), it);
-        hotVector[index] = 1;
+        std::vector<double> hotVector = initializeOneHotVectors(uniqueWords, word);
 
         // add hot vector to custom Vector class, then create weight vector
         vector.setHotVector(hotVector);
@@ -71,17 +79,25 @@ std::unordered_map<std::string, Vector> oneHotEncodeData(std::string input) {
 
 int main() {
 
-    Reader reader = Reader();
-    reader.setPath("C:\\Users\\ewegg\\OneDrive\\Documents\\C++_Scripts\\Embedder\\data\\index.txt");
-    reader.read();
+    Network network = Network({{5}, {10}, {5}});
+    // network.print();
 
-    // Reading in text file as a string
-    std::string dataString = reader.getData();
+    std::cout << "1" << std::endl;
+    std::vector<double> inputs = {0.0, 0.0, 1.0, 0.0, 0.0};
+    std::cout << "2" << std::endl;
+    std::vector<double> weights = {0.5, 2.81, -3.21, 5.0, 2.1};
+    std::cout << "3" << std::endl;
+    Vector vector = Vector();
+    std::cout << "4" << std::endl;
+    vector.setHotVector(inputs);
+    std::cout << "5" << std::endl;
+    vector.setWeightVector(weights);
+    std::cout << "6" << std::endl;
 
-    // Passing data into vectorizing encoder
-    std::unordered_map<std::string, Vector> oneHotVectors = oneHotEncodeData(dataString);
+    network.set(network.getInputLayer(), vector);
+    std::cout << "7" << std::endl;
 
-    std::cout << oneHotVectors["\"by"].getHotVector()[0] << std::endl;
+    network.print();
 
     return 0;
 }

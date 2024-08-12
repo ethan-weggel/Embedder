@@ -7,7 +7,7 @@ Vector::Vector() {
 }
 
 // Getter method
-std::vector<int> Vector::getHotVector() const {
+std::vector<double> Vector::getHotVector() const {
     return hotVector;
 }
 
@@ -17,17 +17,17 @@ std::vector<double> Vector::getWeightVector() const {
 }
 
 // Set hot-vector method
-void Vector::setHotVector(const std::vector<int>& vector) {
+void Vector::setHotVector(const std::vector<double> vector) {
     hotVector = vector;
 }
 
 // Set weight-vector method
-void Vector::setWeightVector(const std::vector<double>& vector) {
+void Vector::setWeightVector(const std::vector<double> vector) {
     weightVector = vector;
 }
 
 // Set hot-vector index
-void Vector::setHotVectorIndex(int index, const int& value) {
+void Vector::setHotVectorIndex(int index, const double value) {
     if (index >= hotVector.size()) {
         hotVector.resize(index + 1);  // Ensure the vector is large enough
     }
