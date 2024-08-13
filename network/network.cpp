@@ -11,13 +11,31 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
     std::vector<Node> inputLayer = {std::vector<Node>(inputSize)};
     std::vector<Node> outputLayer = {std::vector<Node>(outputSize)};
 
+    int numberHiddenLayers = 0;
     for (const int hiddenLayerSize : layerDim[1]) {
         std::vector<Node> hiddenLayer = {std::vector<Node>(hiddenLayerSize)};
         this->hiddenLayers.push_back(hiddenLayer);
+        numberHiddenLayers++;
     }
 
     this->inputLayer = inputLayer;
     this->outputLayer = outputLayer;
+
+    std::vector<double> inputLayerWeights;
+    std::vector<double> outputLayerWeights;
+    std::vector<std::vector<double>> hiddenLayerWeights;
+
+    if (numberHiddenLayers > 1) {
+        inputLayer.resize(inputSize * layerDim[1].size());
+        for (int i = 0; i < numberHiddenLayers; i++) {
+            // hiddenLayerWeights.push_back();
+        }
+    } else if (numberHiddenLayers == 1) {
+        inputLayer.resize(inputSize * layerDim[1].size());
+    } else {
+        inputLayer.resize(inputSize * outputSize);
+    }
+
 }
 
 double Network::getOutput() {
@@ -96,7 +114,7 @@ void Network::zip(std::vector<Node> nodes, std::vector<double> inputs) {
 void Network::set(std::vector<Node> layer, Vector vector) {
 
     zip(layer, vector.getHotVector());
-    // this->weights[0] = vector.getWeightVector();
+    this->weights[0] = vector.getWeightsVector();
 
 }
 
@@ -113,8 +131,13 @@ void Network::print() {
     }
     std::cout << "Output Layer Size: " << this->outputLayer.size() << std::endl;
 
-    std::cout << "Zipped Nodes: " << std::endl;
+    // std::cout << "Zipped Nodes: " << std::endl;
+    // for (Node node : this->inputLayer) {
+    //     std::cout << node.getId() << " -> Input: " << node.getInput() << std::endl;
+    // }
+
+    std::cout << "Embedding Layout: " << std::endl;
     for (Node node : this->inputLayer) {
-        std::cout << node.getId() << " -> Input: " << node.getInput() << std::endl;
+        std::cout << node.getInput() << " -> " << node.getId() << " -> " << this->weights[0][node.getId()] << std::endl;
     }
 }

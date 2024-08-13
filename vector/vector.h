@@ -6,7 +6,7 @@
 
 class Vector {
     private:
-        std::vector<double> weightVector;
+        std::vector<std::vector<double>> weightsVector;
         std::vector<double> hotVector;
 
     public:
@@ -14,21 +14,25 @@ class Vector {
         Vector();
 
         // Getter method
-        std::vector<double> getHotVector() const;
-        // Getter method
-        std::vector<double> getWeightVector() const;
+        std::vector<double> getHotVector();
 
         // Set hot-vector method
-        void setHotVector(const std::vector<double> vector);
-
-        // Set weight-vector method
-        void setWeightVector(const std::vector<double> vector);
+        void setHotVector(std::vector<double> vector);
 
         // Set hot-vector index
-        void setHotVectorIndex(int index, const double value);
+        void setHotVectorIndex(int index, double value);
+
+        // Getter method
+        std::vector<std::vector<double>> getWeightsVector();
+
+        // Set weight-vector method
+        void setWeightsVector(std::vector<std::vector<double>> vector);
+
+        // Set weights sub-vector method
+        void setWeightsSubVector(int node, std::vector<double> weights);
 
         // Set weight-vector index
-        void setWeightVectorIndex(int index, double value);
+        void setWeightVectorIndex(int node, int index, double value);
 
         // Display functions
         void printHot();
