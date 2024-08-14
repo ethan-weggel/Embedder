@@ -10,6 +10,7 @@ Node::Node() {
     // initalizing as emtpy so it can be resized
     this->forwardNodes = {};
     this->previousNodes = {};
+    this->weights = {};
 
     this->input = 0.0;
     this->output = 0.0;
@@ -43,35 +44,43 @@ Node::~Node() {
 }
 
 // Getter methods
-int Node::getId() const {
+int Node::getId() {
     return this->id;
 }
 
-std::string Node::getType() const {
+std::string Node::getType() {
     return this->type;
 }
 
-double Node::getInput() const {
+double Node::getInput() {
     return this->input;
 }
 
-double Node::getOutput() const {
+double Node::getOutput() {
     return this->output;  
 }
 
-double Node::getGradient() const {
+double Node::getGradient() {
     return this->gradient;
 }
 
-double Node::getError() const {
+double Node::getError() {
     return this->error;
 }
 
-std::vector<Node*> Node::getForwardNodes() const {
+std::vector<double> Node::getWeights() {
+    return this->weights;
+}
+
+double Node::getWeight(int index) {
+    return this->weights[index];
+}
+
+std::vector<Node*> Node::getForwardNodes() {
     return this->forwardNodes;
 }
 
-std::vector<Node*> Node::getPreviousNodes() const {
+std::vector<Node*> Node::getPreviousNodes() {
     return this->previousNodes;
 }
 
@@ -106,6 +115,14 @@ void Node::setForwardNodes(const std::vector<Node*>& nodes) {
 
 void Node::setPreviousNodes(const std::vector<Node*>& nodes) {
     this->previousNodes = nodes;
+}
+
+void Node::setWeights(std::vector<double> newWeights) {
+    this->weights = newWeights;
+}
+
+void Node::setWeight(int index, double newWeight) {
+    this->weights[index] = newWeight;
 }
 
 // Additional methods
@@ -143,4 +160,9 @@ void Node::print() {
     std::cout << "\tOutput   -> " << this->output << std::endl;
     std::cout << "\tError    -> " << this->error << std::endl;
     std::cout << "\tGradient -> " << this->gradient << std::endl;
+    std::cout << "\tWeights  -> { ";
+    for (double weight : this->weights) {
+        std::cout << weight << " ";
+    }
+    std::cout << "}" << std::endl;
 }

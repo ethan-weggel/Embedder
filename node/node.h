@@ -16,6 +16,7 @@ private:
     double output;
     double gradient;
     double error;
+    std::vector<double> weights;
     std::vector<Node*> forwardNodes;
     std::vector<Node*> previousNodes;
 
@@ -30,14 +31,16 @@ public:
     ~Node();
 
     // Getter methods
-    int getId() const;
-    std::string getType() const;
-    double getInput() const;
-    double getOutput() const;
-    double getGradient() const;
-    double getError() const;
-    std::vector<Node*> getForwardNodes() const;
-    std::vector<Node*> getPreviousNodes() const;
+    int getId();
+    std::string getType();
+    double getInput();
+    double getOutput();
+    double getGradient();
+    double getError();
+    std::vector<double> getWeights();
+    double getWeight(int index);
+    std::vector<Node*> getForwardNodes();
+    std::vector<Node*> getPreviousNodes();
 
     // Setter methods
     void setId(int id);
@@ -48,6 +51,8 @@ public:
     void setError(double error);
     void setForwardNodes(const std::vector<Node*>& nodes);
     void setPreviousNodes(const std::vector<Node*>& nodes);
+    void setWeights(std::vector<double> newWeights);
+    void setWeight(int index, double newWeight);
 
     // Additional methods
     void addForwardNode(Node* node);
