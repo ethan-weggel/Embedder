@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <random>
 
-std::vector<std::vector<double>> initializeWeights(int firstLayerSize, int secondLayerSize, double mean, double stddev) {
+std::vector<std::vector<double>> initializeLayerWeights(int firstLayerSize, int secondLayerSize, double mean, double stddev) {
     std::vector<std::vector<double>> weights(firstLayerSize, std::vector<double>(secondLayerSize));
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -22,6 +22,21 @@ std::vector<std::vector<double>> initializeWeights(int firstLayerSize, int secon
             weight = dis(gen);
         }
     }
+
+    return weights;
+}
+
+std::vector<double> initializeNodeWeights(int size, double mean, double stddev) {
+    std::vector<double> weights(size);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<> dis(mean, stddev);
+    
+
+    for (auto& weight : weights) {
+        weight = dis(gen);
+    }
+
 
     return weights;
 }
@@ -72,7 +87,7 @@ std::unordered_map<std::string, Vector> vectorizeData(std::string input, int sec
         // add hot vector to custom Vector class, then create weight vector
         vector.setHotVector(hotVector);
 
-        std::vector<std::vector<double>> weights = initializeWeights(uniqueWords.size(), secondLayerSize);
+        std::vector<std::vector<double>> weights = initializeLayerWeights(uniqueWords.size(), secondLayerSize);
         vector.setWeightsVector(weights);
 
         dictionary[word] = vector;

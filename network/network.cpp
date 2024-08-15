@@ -22,22 +22,43 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
 
     // create and initialize pointers to nodes
     for (int i = 0; i < this->inputLayer.size(); i++) {
-        this->inputLayer[i] = new Node();
+        this->inputLayer[i] = new Node("input");
     }
 
     for (int i = 0; i < this->hiddenLayers.size(); i++) {
         for (int j = 0; j < this->hiddenLayers[i].size(); j++) {
-            this->hiddenLayers[i][j] = new Node();
+            this->hiddenLayers[i][j] = new Node("hidden");
+            if (this->hiddenLayers.size() == 1) {
+                this->hiddenLayers[i][j]->setWeightsHidden(initializeNodeWeights(this->outputLayer.size()));
+            } else if ((this->hiddenLayers.size() - i) > 1) {
+                this->hiddenLayers[i][j]->setWeightsHidden(initializeNodeWeights(this->hiddenLayers[i + 1].size()));
+            } else {
+                this->hiddenLayers[i][j]->setWeightsHidden(initializeNodeWeights(this->outputLayer.size()));
+            }
         }
     }
 
     for (int i = 0; i < this->outputLayer.size(); i++) {
-        this->outputLayer[i] = new Node();
+        this->outputLayer[i] = new Node("output");
     }
 
     this->output = 0;
     this->error = 0;
 
+}
+
+Network::~Network() {
+    for (Node* node : inputLayer) {
+        delete node;
+    }
+    for (auto& layer : hiddenLayers) {
+        for (Node* node : layer) {
+            delete node;
+        }
+    }
+    for (Node* node : outputLayer) {
+        delete node;
+    }
 }
 
 
@@ -53,7 +74,7 @@ std::vector<Node*>* Network::getInputLayer() {
     return &inputLayer;
 }
 
-std::vector<std::vector<Node*>>* Network::getHiddenLayer() {
+std::vector<std::vector<Node*>>* Network::getHiddenLayers() {
     return &hiddenLayers;
 }
 
@@ -95,7 +116,7 @@ void Network::zipInputs(std::vector<Node*>* nodes, std::vector<double> inputs) {
     } 
 }
 
-void Network::zipWeights(std::vector<Node*>* nodes, std::vector<std::vector<double>> weights) {
+void Network::zipWeights(std::vector<Node*>* nodes, std::vector<std::vector<double>*> weights) {
     int iterLen = nodes->size();
     int iter = 0;
 
@@ -113,13 +134,19 @@ void Network::setNetwork(std::vector<Node*>* layer, Vector* vector) {
 
 }
 
+std::vector<double> Network::forwardPropagate() {
+    // TODO, just added fixed weight to prove pointer manipulation
+    this->inputLayer[0]->setWeight(0, 2.7813);
+    return {2.1};
+}
+
 // std::vector<double> softmax(std::vector<double> outputPreActivation);
 // std::vector<double> ReLU(std::vector<double> inputs);
 // std::vector<double> crossEntropy();
-// std::vector<double> forwardPropagate();
 // std::vector<double> backwardPropagate();
 
 void Network::print() {
+    
     std::cout << "Input Layer Size: " << this->inputLayer.size() << std::endl;
     for (int i = 0; i < this->hiddenLayers.size(); i++) {
         std::cout << "Hidden Layer [" << i+1 << "] Size: " << this->hiddenLayers[i].size() << std::endl;
@@ -130,7 +157,7 @@ void Network::print() {
     std::cout << "Input | Node | Weights" << std::endl;
     for (Node* node : this->inputLayer) {
         std::cout << node->getInput() << " -> " << node->getId() << " -> { ";
-        for (double weight : node->getWeights()) {
+        for (double weight : (*node->getWeights())) {
             std::cout << weight << " ";
         }
         std::cout << "}" << std::endl;

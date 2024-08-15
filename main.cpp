@@ -26,19 +26,28 @@ int main() {
     // will allow network to be allocated and built
     Vector vector = dataLookup["index"];
 
-    std::vector<std::vector<double>> weights = vector.getWeightsVector();
+    std::vector<std::vector<double>*> weights = vector.getWeightsVector();
 
     int layerSize = static_cast<int>(vector.getHotVector().size());
 
     Network network = Network({{layerSize},
-                               {5}, 
+                               {5, 5}, 
                                {layerSize}});
 
-    network.setNetwork(network.getInputLayer(), &vector);
+    // network.setNetwork(network.getInputLayer(), &vector);
+    // network.print();
+    // network.forwardPropagate();
+    // network.print();
 
-    network.print();
+    // network.setNetwork(network.getInputLayer(), &dataLookup["zygote"]);
+    // network.print();
+    // network.forwardPropagate();
+    // network.print();
 
-    vector.printWeight();
+    // network.setNetwork(network.getInputLayer(), &vector);
+    // network.print();
+
+    (*network.getHiddenLayer(1))[0]->print();
 
     return 0;
 }

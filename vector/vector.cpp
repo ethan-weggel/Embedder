@@ -25,8 +25,14 @@ void Vector::setHotVectorIndex(int index, double value) {
 }
 
 // Getter method
-std::vector<std::vector<double>> Vector::getWeightsVector() {
-    return weightsVector;
+std::vector<std::vector<double>*> Vector::getWeightsVector() {
+    std::vector<std::vector<double>*> addresses;
+
+    for (int i = 0; i < this->weightsVector.size(); i++) {
+        addresses.push_back(&weightsVector[i]);
+    }
+
+    return addresses;
 }
 
 // Set weight-vector method

@@ -16,7 +16,8 @@ private:
     double output;
     double gradient;
     double error;
-    std::vector<double> weights;
+    std::vector<double>* weights;
+    std::vector<double> weightsValues;
     std::vector<Node*> forwardNodes;
     std::vector<Node*> previousNodes;
 
@@ -25,7 +26,7 @@ public:
     Node();
 
     // typed and indexed constructor
-    Node(std::string type, int id);
+    Node(std::string type);
 
     // destructor
     ~Node();
@@ -37,8 +38,10 @@ public:
     double getOutput();
     double getGradient();
     double getError();
-    std::vector<double> getWeights();
+    std::vector<double>* getWeights();
+    std::vector<double> getWeightsHidden();
     double getWeight(int index);
+    double getWeightHidden(int index);
     std::vector<Node*> getForwardNodes();
     std::vector<Node*> getPreviousNodes();
 
@@ -51,8 +54,10 @@ public:
     void setError(double error);
     void setForwardNodes(const std::vector<Node*>& nodes);
     void setPreviousNodes(const std::vector<Node*>& nodes);
-    void setWeights(std::vector<double> newWeights);
+    void setWeights(std::vector<double>* newWeights);
+    void setWeightsHidden(std::vector<double> newWeights);
     void setWeight(int index, double newWeight);
+    void setWeightHidden(int index, double newWeight);
 
     // Additional methods
     void addForwardNode(Node* node);

@@ -23,7 +23,7 @@ class Vector {
         void setHotVectorIndex(int index, double value);
 
         // Getter method
-        std::vector<std::vector<double>> getWeightsVector();
+        std::vector<std::vector<double>*> getWeightsVector();
 
         // Set weight-vector method
         void setWeightsVector(std::vector<std::vector<double>> vector);

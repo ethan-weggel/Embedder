@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "Node.h"
+#include "../utilities/utilities.h"
 
 int Node::instCnt = 0;
 
@@ -10,21 +11,23 @@ Node::Node() {
     // initalizing as emtpy so it can be resized
     this->forwardNodes = {};
     this->previousNodes = {};
-    this->weights = {};
 
     this->input = 0.0;
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
+    this->weights = NULL;
+    this->weightsValues = {};
 
     this->id = instCnt;
     instCnt++;
 }
 
 // Typed constructor
-Node::Node(std::string type, int id) {
+Node::Node(std::string type) {
     this->type = type;
-    this->id = id;
+    this->id = instCnt;
+    instCnt++;
 
     // initalizing as emtpy so it can be resized
     this->forwardNodes = {};
@@ -34,6 +37,8 @@ Node::Node(std::string type, int id) {
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
+    this->weights = NULL;
+    this->weightsValues = {};
     
     this->id = instCnt;
     instCnt++;
@@ -68,12 +73,28 @@ double Node::getError() {
     return this->error;
 }
 
-std::vector<double> Node::getWeights() {
+std::vector<double>* Node::getWeights() {
     return this->weights;
 }
 
+std::vector<double> Node::getWeightsHidden() {
+    if (this->type == "hidden") {
+        return this->weightsValues;
+    } else {
+        return {-1.0};
+    }
+}
+
 double Node::getWeight(int index) {
-    return this->weights[index];
+    return (*this->weights)[index];
+}
+
+double Node::getWeightHidden(int index) {
+    if (this->type == "hidden") {
+        return this->weightsValues[index];
+    } else {
+        return -1.0;
+    }
 }
 
 std::vector<Node*> Node::getForwardNodes() {
@@ -117,12 +138,32 @@ void Node::setPreviousNodes(const std::vector<Node*>& nodes) {
     this->previousNodes = nodes;
 }
 
-void Node::setWeights(std::vector<double> newWeights) {
+void Node::setWeights(std::vector<double>* newWeights) {
     this->weights = newWeights;
 }
 
+void Node::setWeightsHidden(std::vector<double> newWeights) {
+    if (this->weightsValues.size() < newWeights.size()) {
+        this->weightsValues.resize(newWeights.size());
+    }
+
+    if (this->type == "hidden") {
+        this->weightsValues = newWeights;
+    } else {
+        return;
+    }
+}
+
 void Node::setWeight(int index, double newWeight) {
-    this->weights[index] = newWeight;
+    (*this->weights)[index] = newWeight;
+}
+
+void Node::setWeightHidden(int index, double newWeight) {
+    if (this->type == "hidden") {
+        this->weightsValues[index] = newWeight;
+    } else {
+        return;
+    }
 }
 
 // Additional methods
@@ -147,6 +188,7 @@ void Node::clear() {
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
+    this->weights = NULL;
 }
 
 void Node::clearSynapses() {
@@ -155,14 +197,29 @@ void Node::clearSynapses() {
 }
 
 void Node::print() {
-    std::cout << "\nNode [" << this->id << "]:" << std::endl;
-    std::cout << "\tInput    -> " << this->input << std::endl;
-    std::cout << "\tOutput   -> " << this->output << std::endl;
-    std::cout << "\tError    -> " << this->error << std::endl;
-    std::cout << "\tGradient -> " << this->gradient << std::endl;
-    std::cout << "\tWeights  -> { ";
-    for (double weight : this->weights) {
-        std::cout << weight << " ";
+    if (this->type == "input") {
+        std::cout << "\nNode [" << this->id << "]:" << std::endl;
+        std::cout << "\tInput    -> " << this->input << std::endl;
+        std::cout << "\tOutput   -> " << this->output << std::endl;
+        std::cout << "\tError    -> " << this->error << std::endl;
+        std::cout << "\tGradient -> " << this->gradient << std::endl;
+        std::cout << "\tWeights  -> { ";
+        for (double weight : (*this->weights)) {
+            std::cout << weight << " ";
+        }
+        std::cout << "}" << std::endl;
+    } else if (this->type == "hidden") {
+        std::cout << "\nNode [" << this->id << "]:" << std::endl;
+        std::cout << "\tInput    -> " << this->input << std::endl;
+        std::cout << "\tOutput   -> " << this->output << std::endl;
+        std::cout << "\tError    -> " << this->error << std::endl;
+        std::cout << "\tGradient -> " << this->gradient << std::endl;
+        std::cout << "\tWeights  -> { ";
+        for (double weight : this->weightsValues) {
+            std::cout << weight << " ";
+        }
+        std::cout << "}" << std::endl;
+    } else {
+        std::cout << "Print method for node type has not been implemented." << std::endl;
     }
-    std::cout << "}" << std::endl;
 }
