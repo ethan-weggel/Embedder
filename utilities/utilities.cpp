@@ -105,3 +105,16 @@ double doubleSum(std::vector<double> inputs) {
 
     return sum;
 }
+
+double oneDimDotProduct(std::vector<double> arr1, std::vector<double> arr2) {
+    double sum = 0;
+    int index = 0;
+
+    while (index < arr1.size()) {
+        sum += (arr1[index] * arr2[index]);
+        index++;
+    }
+
+    return sum;
+    
+}

@@ -43,8 +43,8 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
         this->outputLayer[i] = new Node("output");
     }
 
-    this->output = 0;
-    this->error = 0;
+    this->output = {};
+    this->error = {};
 
     formSynapses();
 
@@ -96,11 +96,11 @@ void Network::formSynapses() {
     }
 }
 
-double Network::getOutput() {
+std::vector<double> Network::getOutput() {
     return this->output;
 }
 
-double Network::getError() {
+std::vector<double> Network::getError() {
     return this->error;
 }
 
@@ -121,8 +121,8 @@ std::vector<Node*>* Network::getOutputLayer() {
 }
 
 void Network::reset() {
-    this->output = 0;
-    this->error = 0;
+    this->output = {};
+    this->error = {};
 
     for (Node* node : this->inputLayer) {
         node->clear();
@@ -171,89 +171,153 @@ void Network::setNetwork(std::vector<Node*>* layer, Vector* vector) {
 }
 
 std::vector<double> Network::forwardPropagate() {
-    ReLU(this->inputLayer, this->hiddenLayers[0]);
+    ReLU(this->inputLayer, this->hiddenLayers[0], 1);
     int numHiddenLayers = this->hiddenLayers.size();
+    int layerIndex = 0;
+    std::vector<double> outputDistribution = {};
 
     if (numHiddenLayers == 1) {
-
+        outputDistribution = softmax(this->hiddenLayers[0], this->outputLayer);
     } else {
-        
+        for (std::vector<Node*> layer : this->hiddenLayers) {
+            if (layerIndex < numHiddenLayers-1) {
+                ReLU(this->hiddenLayers[layerIndex], this->hiddenLayers[layerIndex+1], 0);
+            } else {
+                outputDistribution = softmax(this->hiddenLayers[layerIndex], this->outputLayer);
+            }
+            layerIndex++;
+        }
     }
+
+    this->output = outputDistribution;
    
-    return {2.1};
+    return outputDistribution;
 }
 
-void Network::ReLU(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer) {
+void Network::ReLU(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer, int isInputLayer) {
     int iterator = 0;
     int tempOutput = 0;
 
-    for (Node* inputNode : inputLayer) {
-        // setting inputs as weighted inputs
-        for (Node* node : inputNode->getForwardNodes()) {
-            node->setInput(-1, (inputNode->getOutput() * inputNode->getWeight(iterator)));
+    if (isInputLayer) {
+        // if ReLU is being performed on input nodes in the network,
+        // we must get weight values through dereferenced pointers to
+        // change vector values stored outside the network
+        for (Node* inputNode : inputLayer) {
+            // setting inputs as weighted inputs
+            for (Node* node : inputNode->getForwardNodes()) {
+                node->setInput(-1, (inputNode->getOutput() * inputNode->getWeight(iterator)));
+            }
         }
-    }
 
-    for (Node* outputNode : outputLayer) {
-        // summing weighted inputs, hard start after y = 0
-        double weightedSum = doubleSum(outputNode->getInputs());
-        if (weightedSum <= 0) {
-            outputNode->setOutput(0.0);
-        } else {
-            outputNode->setOutput(doubleSum(outputNode->getInputs()));
+        for (Node* outputNode : outputLayer) {
+            // summing weighted inputs, hard start after y = 0
+            double weightedSum = doubleSum(outputNode->getInputs());
+            if (weightedSum <= 0) {
+                outputNode->setOutput(0.0);
+            } else {
+                outputNode->setOutput(doubleSum(outputNode->getInputs()));
+            }
         }
-    }
+    } else {
+        // if ReLU is being performed on not an input layer, we cannot
+        // access weights through dereferenced pointers, we need to 
+        // access hard values
+        for (Node* inputNode : inputLayer) {
+            // setting inputs as weighted inputs
+            for (Node* node : inputNode->getForwardNodes()) {
+                node->setInput(-1, (inputNode->getOutput() * inputNode->getWeightHidden(iterator)));
+            }
+        }
 
-    for (Node* node : outputLayer) {
-        node->print();
+        for (Node* outputNode : outputLayer) {
+            // summing weighted inputs, hard start after y = 0
+            double weightedSum = doubleSum(outputNode->getInputs());
+            if (weightedSum <= 0) {
+                outputNode->setOutput(0.0);
+            } else {
+                outputNode->setOutput(doubleSum(outputNode->getInputs()));
+            }
+        }   
     }
 }
 
-double softmaxHelper(int featureIndex, std::vector<double> features) {
-    int sum = 0;
-    int index = 0;
+double softmaxHelper(std::vector<double> inputs) {
+    double sum = 0;
 
-    for (double feature : features) {
-        if (index != featureIndex) {
-            sum += feature;
-        }
-        index++;
+    for (double input : inputs) {
+        sum += exp(input);
     }
 
     return sum;
 }
 
 std::vector<double> Network::softmax(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer) {
-    std::vector<double> softmaxProbabilities = {};
     int outputNodeIndex = 0;
 
     for (Node* inputNode : inputLayer) {
         for (Node* outputNode : outputLayer) {
-            outputNode->setInput(-1, (inputNode->getOutput() * inputNode->getWeights()[outputNodeIndex]));
+            outputNode->setInput(-1, (inputNode->getOutput() * inputNode->getWeightsHidden()[outputNodeIndex]));
+            outputNodeIndex++;
         }
+        outputNodeIndex = 0;
     }
 
-    std::vector<double> presoftmaxTransform = {};
+
     for (Node* node : outputLayer) {
-        presoftmaxTransform.push_back(node->get);
+        node->setOutput(doubleSum(node->getInputs()));
     }
 
 
-    // std::vector<double> outputProbabilities = {};
-    // int featureIndex = 0;
+    std::vector<double> outputProbabilities = {};
+    std::vector<double> preSoftmaxOutputs = {};
+    for (Node* node : outputLayer) {
+        preSoftmaxOutputs.push_back(node->getOutput());
+    }
 
-    // while (featureIndex < inputs.size()){
-    //     double denominator = softmaxHelper(featureIndex, inputs);
-    //     double numerator = inputs[featureIndex];
-    //     outputProbabilities.push_back(numerator / denominator);
-    //     featureIndex++;
-    // }
+    int featureIndex = 0;
 
-    // return outputProbabilities;
+    while (featureIndex < outputLayer.size()){
+        double denominator = softmaxHelper(preSoftmaxOutputs);
+        double numerator = exp(preSoftmaxOutputs[featureIndex]);
+        
+        if (denominator != 0) {
+            outputProbabilities.push_back(numerator / denominator);
+        } else {
+            outputProbabilities.push_back(0.0);
+        } 
+
+        featureIndex++;
+    }
+
+    return outputProbabilities;
 }
 
-// std::vector<double> crossEntropy();
-// std::vector<double> backwardPropagate();
+std::vector<double> Network::crossEntropy(std::vector<double> softmaxOutput, std::vector<double> targetDistribution) {
+    std::vector<double> errors = {};
+    int index = 0;
+
+    while (index < softmaxOutput.size()) {
+        errors.push_back(softmaxOutput[index] - targetDistribution[index]);
+        index++;
+    }
+
+    this->error = errors;
+    return errors;
+} 
+
+std::vector<double> Network::backwardPropagate(std::vector<double> targetDistribution) {
+    // assume there will always be a hidden layer and an output layer
+    // this section is to correct weights between last layer and output layer
+
+    for (Node* node : this->hiddenLayers[this->hiddenLayers.size()-1]) {
+        std::vector<double> errors = crossEntropy(this->output,  targetDistribution);
+        double dLoss_dActivation = 0;
+        for (double weight : node->getWeightsHidden()) {
+            dLoss_dActivation += weight * error[0];
+        }
+
+    }
+}
 
 void Network::print() {
     

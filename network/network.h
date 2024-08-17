@@ -14,8 +14,8 @@ class Network {
         std::vector<std::vector<Node*>> hiddenLayers;
         std::vector<Node*> outputLayer; 
 
-        double output;
-        double error;
+        std::vector<double> output;
+        std::vector<double> error;
 
     public:
         // Default constructor
@@ -23,8 +23,8 @@ class Network {
         ~Network();
 
         // Getter methods
-        double getOutput();
-        double getError();
+        std::vector<double> getOutput();
+        std::vector<double> getError();
         std::vector<Node*>* getInputLayer();
         std::vector<std::vector<Node*>>* getHiddenLayers();
         std::vector<Node*>* getHiddenLayer(int index);
@@ -32,14 +32,15 @@ class Network {
 
         // Additional methods
         std::vector<double> softmax(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer);
-        void ReLU(std::vector<Node*> inputNodes, std::vector<Node*> outputNodes);
+        void ReLU(std::vector<Node*> inputNodes, std::vector<Node*> outputNodes, int isInputLayer);
         std::vector<double> crossEntropy();
         void zipInputs(std::vector<Node*>* nodes, std::vector<double> inputs);
         void zipWeights(std::vector<Node*>* nodes, std::vector<std::vector<double>*> weights);
         void reset();
         void setNetwork(std::vector<Node*>* layer, Vector* vector);
         std::vector<double> forwardPropagate();
-        std::vector<double> backwardPropagate();
+        std::vector<double> backwardPropagate(std::vector<double> targetDistribution);
+        std::vector<double> crossEntropy(std::vector<double> softmaxOutput, std::vector<double> targetDistribution);
         void formSynapses();
 
         // Simple display method

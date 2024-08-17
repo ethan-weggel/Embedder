@@ -13,6 +13,8 @@
 
 int main() {
 
+    int hiddenLayerSize = 5;
+
     Reader reader = Reader();
     reader.setPath("data\\index.txt");
 
@@ -20,7 +22,7 @@ int main() {
 
     std::string data = reader.getData();
 
-    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 5);
+    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, hiddenLayerSize);
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
@@ -31,12 +33,17 @@ int main() {
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {5}, 
+                               {hiddenLayerSize}, 
                                {layerSize}});
 
     network.setNetwork(network.getInputLayer(), &vector);
     network.print();
-    network.forwardPropagate();
+
+    std::vector<double> dist = network.forwardPropagate();
+    
+    printVec(&dist);
+
+
 
     return 0;
 }
