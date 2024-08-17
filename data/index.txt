@@ -1,2 +1,2 @@
 index
-zygote zebra apple
+The man ate an apple.

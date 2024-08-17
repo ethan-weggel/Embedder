@@ -39,9 +39,10 @@ class Network {
         void reset();
         void setNetwork(std::vector<Node*>* layer, Vector* vector);
         std::vector<double> forwardPropagate();
-        std::vector<double> backwardPropagate(std::vector<double> targetDistribution);
+        void backwardPropagate(std::vector<double> targetDistribution, double learningRate);
         std::vector<double> crossEntropy(std::vector<double> softmaxOutput, std::vector<double> targetDistribution);
         void formSynapses();
+        std::vector<double> inference();
 
         // Simple display method
         void print();

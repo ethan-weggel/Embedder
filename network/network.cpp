@@ -24,11 +24,13 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
     // create and initialize pointers to nodes
     for (int i = 0; i < this->inputLayer.size(); i++) {
         this->inputLayer[i] = new Node("input");
+        this->inputLayer[i]->setBias(initializeBias());
     }
 
     for (int i = 0; i < this->hiddenLayers.size(); i++) {
         for (int j = 0; j < this->hiddenLayers[i].size(); j++) {
             this->hiddenLayers[i][j] = new Node("hidden");
+            this->hiddenLayers[i][j]->setBias(initializeBias());
             if (this->hiddenLayers.size() == 1) {
                 this->hiddenLayers[i][j]->setWeightsHidden(initializeNodeWeights(this->outputLayer.size()));
             } else if ((this->hiddenLayers.size() - i) > 1) {
@@ -41,6 +43,7 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
 
     for (int i = 0; i < this->outputLayer.size(); i++) {
         this->outputLayer[i] = new Node("output");
+        this->outputLayer[i]->setBias(initializeBias());
     }
 
     this->output = {};
@@ -125,17 +128,7 @@ void Network::reset() {
     this->error = {};
 
     for (Node* node : this->inputLayer) {
-        node->clear();
-    }
-    
-    for (std::vector<Node*> layer : this->hiddenLayers) {
-        for (Node* node : layer) {
-            node->clear();
-        }
-    }
-
-    for (Node* node : this->outputLayer) {
-        node->clear();
+        std::cout << (*node->getWeights()).size() << std::endl;
     }
 
 }
@@ -215,7 +208,7 @@ void Network::ReLU(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer
             if (weightedSum <= 0) {
                 outputNode->setOutput(0.0);
             } else {
-                outputNode->setOutput(doubleSum(outputNode->getInputs()));
+                outputNode->setOutput(doubleSum(outputNode->getInputs()) + outputNode->getBias());
             }
         }
     } else {
@@ -235,7 +228,7 @@ void Network::ReLU(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer
             if (weightedSum <= 0) {
                 outputNode->setOutput(0.0);
             } else {
-                outputNode->setOutput(doubleSum(outputNode->getInputs()));
+                outputNode->setOutput(doubleSum(outputNode->getInputs()) + outputNode->getBias());
             }
         }   
     }
@@ -264,7 +257,7 @@ std::vector<double> Network::softmax(std::vector<Node*> inputLayer, std::vector<
 
 
     for (Node* node : outputLayer) {
-        node->setOutput(doubleSum(node->getInputs()));
+        node->setOutput(doubleSum(node->getInputs()) + node->getBias());
     }
 
 
@@ -305,18 +298,108 @@ std::vector<double> Network::crossEntropy(std::vector<double> softmaxOutput, std
     return errors;
 } 
 
-std::vector<double> Network::backwardPropagate(std::vector<double> targetDistribution) {
+void Network::backwardPropagate(std::vector<double> targetDistribution, double learningRate) {
     // assume there will always be a hidden layer and an output layer
-    // this section is to correct weights between last layer and output layer
+    std::vector<double> errors = crossEntropy(this->output, targetDistribution);
 
-    for (Node* node : this->hiddenLayers[this->hiddenLayers.size()-1]) {
-        std::vector<double> errors = crossEntropy(this->output,  targetDistribution);
-        double dLoss_dActivation = 0;
-        for (double weight : node->getWeightsHidden()) {
-            dLoss_dActivation += weight * error[0];
-        }
+    // this is to find the gradients of the nodes in the output layer
+    int nodeIndex = 0;
+    for (Node* node : this->outputLayer) {
+
+        node->setGradient(errors[nodeIndex]);
+        nodeIndex++;
 
     }
+
+    // this is to find the gradients of all hidden nodes based on the previous gradients
+    int currentHiddenLayer = this->hiddenLayers.size()-1;
+    while (currentHiddenLayer != 0) {
+
+        // if hidden layer is closest to output layer
+        if (currentHiddenLayer == this->hiddenLayers.size()-1) {
+            for (Node* hiddenNode : this->hiddenLayers[currentHiddenLayer]) {
+                int synapseIndex = 0;
+                double dLoss_dHiddenLayerGradient = 0;
+                for (Node* outputNode : this->outputLayer) {
+                    dLoss_dHiddenLayerGradient += outputNode->getGradient() * hiddenNode->getWeightsHidden()[synapseIndex];
+                    synapseIndex++;
+                }
+                hiddenNode->setGradient(dLoss_dHiddenLayerGradient);
+            }
+            currentHiddenLayer--;
+        }
+
+        // if there is more than one hidden layer, now we use derivative of ReLU instead of derivative of cross entropy
+        if (currentHiddenLayer > this->hiddenLayers.size()-1) {
+            for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
+                int synapseIndex = 0;
+                double dLoss_dHiddenLayerActivation = 0;
+                for (Node* jNode : this->hiddenLayers[currentHiddenLayer+1]) {
+                    dLoss_dHiddenLayerActivation += jNode ->getGradient() * iNode->getWeightsHidden()[synapseIndex];
+                    synapseIndex++;
+                }
+                double ReLU_derivative;
+                if (iNode->getOutput() > 0) {
+                    ReLU_derivative = 1;
+                } else {
+                    ReLU_derivative = 0;
+                }
+
+                iNode->setGradient(dLoss_dHiddenLayerActivation * ReLU_derivative);
+            }
+            currentHiddenLayer--;
+        }
+    }
+
+    // now that we've calculated gradients, we optimize the weights
+
+    // iterate through weights between input layer and hidden layer (assume there will always be one hidden layer if not more)
+    for (Node* node : this->inputLayer) {
+        int synapseIndex = 0;
+        for (double weight : (*node->getWeights())) {
+            node->setWeight(synapseIndex, weight - (learningRate * (node->getInputs()[0] * this->hiddenLayers[0][synapseIndex]->getGradient())));
+            if (node->getOutput() > 0) {
+                node->setBias(node->getBias() - (learningRate * 1));
+            }
+            synapseIndex++;
+        }
+    }
+
+    // iterate through weights between hidden layers if there is more than one
+    int numhiddenLayers = this->hiddenLayers.size();
+    currentHiddenLayer = 0;
+    if (numhiddenLayers > 1) {
+        while (currentHiddenLayer < numhiddenLayers-1) {
+            for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
+                int synapseIndex = 0;
+                for (double weight : iNode->getWeightsHidden()) {
+                    iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->hiddenLayers[currentHiddenLayer+1][synapseIndex]->getGradient())));
+                    if (iNode->getOutput() > 0) {
+                        iNode->setBias(iNode->getBias() - (learningRate * (iNode->getGradient() * 1)));
+                    }
+                    synapseIndex++;
+                }
+            }
+            currentHiddenLayer++;
+        }
+    }
+
+    // iterate through weights between last hidden layer and output layer
+    for (Node* iNode : this->hiddenLayers[hiddenLayers.size()-1]) {
+        int synapseIndex = 0;
+        for (double weight : iNode->getWeightsHidden()) {
+            iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->outputLayer[synapseIndex]->getGradient())));
+            if (iNode->getOutput() > 0) {
+                iNode->setBias(iNode->getBias() - (learningRate * this->outputLayer[synapseIndex]->getGradient()));
+            }
+            synapseIndex++;
+        }
+    }
+
+}
+
+std::vector<double> Network::inference() {
+    return forwardPropagate();
 }
 
 void Network::print() {

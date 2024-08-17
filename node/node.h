@@ -18,6 +18,7 @@ private:
     double error;
     std::vector<double>* weights;
     std::vector<double> weightsValues;
+    double bias;
     std::vector<Node*> forwardNodes;
     std::vector<Node*> previousNodes;
 
@@ -38,6 +39,7 @@ public:
     double getOutput();
     double getGradient();
     double getError();
+    double getBias();
     std::vector<double>* getWeights();
     std::vector<double> getWeightsHidden();
     double getWeight(int index);
@@ -53,6 +55,7 @@ public:
     void setOutput(double output);
     void setGradient(double gradient);
     void setError(double error);
+    void setBias(double bias);
     void setForwardNodes(std::vector<Node*> nodes);
     void setPreviousNodes(std::vector<Node*> nodes);
     void setWeights(std::vector<double>* newWeights);

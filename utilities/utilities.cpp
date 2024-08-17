@@ -26,6 +26,23 @@ std::vector<std::vector<double>> initializeLayerWeights(int firstLayerSize, int 
     return weights;
 }
 
+double initializeBias() {
+    std::random_device rd; // Obtain a random number from hardware
+    std::mt19937 eng(rd()); // Seed the generator
+
+    // Define the range for the random number
+    std::uniform_real_distribution<> distr(-10.0, 10.0); // Range between -10.0 and 10.0
+
+    // Generate a random value
+    double randomValue = distr(eng);
+
+    // Generate a random sign (+ or -)
+    std::uniform_int_distribution<> signDistr(0, 1); // 0 or 1
+    int sign = signDistr(eng) == 0 ? -1 : 1;
+    double result = sign * randomValue;
+    return result;
+}
+
 std::vector<double> initializeNodeWeights(int size, double mean, double stddev) {
     std::vector<double> weights(size);
     std::random_device rd;

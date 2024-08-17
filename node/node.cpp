@@ -18,6 +18,7 @@ Node::Node() {
     this->gradient = 0.0;
     this->weights = NULL;
     this->weightsValues = {};
+    this->bias = 0.0;
 
     this->id = instCnt;
     instCnt++;
@@ -37,6 +38,7 @@ Node::Node(std::string type) {
     this->gradient = 0.0;
     this->weights = NULL;
     this->weightsValues = {};
+    this->bias = 0.0;
     
     this->id = instCnt;
     instCnt++;
@@ -69,6 +71,10 @@ double Node::getGradient() {
 
 double Node::getError() {
     return this->error;
+}
+
+double Node::getBias() {
+    return this->bias;
 }
 
 std::vector<double>* Node::getWeights() {
@@ -131,6 +137,10 @@ void Node::setGradient(double gradient) {
 void Node::setError(double error) {
     this->error = error;
 }  
+
+void Node::setBias(double bias) {
+    this->bias = bias;
+}
 
 void Node::setForwardNodes(std::vector<Node*> nodes) {
     this->forwardNodes = nodes;
