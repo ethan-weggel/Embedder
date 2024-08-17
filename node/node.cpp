@@ -12,7 +12,7 @@ Node::Node() {
     this->forwardNodes = {};
     this->previousNodes = {};
 
-    this->input = 0.0;
+    this->inputs = {};
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
@@ -26,14 +26,12 @@ Node::Node() {
 // Typed constructor
 Node::Node(std::string type) {
     this->type = type;
-    this->id = instCnt;
-    instCnt++;
 
     // initalizing as emtpy so it can be resized
     this->forwardNodes = {};
     this->previousNodes = {};
 
-    this->input = 0.0;
+    this->inputs = {};
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
@@ -57,8 +55,8 @@ std::string Node::getType() {
     return this->type;
 }
 
-double Node::getInput() {
-    return this->input;
+std::vector<double> Node::getInputs() {
+    return this->inputs;
 }
 
 double Node::getOutput() {
@@ -114,8 +112,12 @@ void Node::setType(const std::string& type) {
     this->type = type;
 }
 
-void Node::setInput(double input) {
-    this->input = input;
+void Node::setInput(int index, double input) {
+    if (index == -1) {
+        this->inputs.push_back(input);
+    } else {
+        this->inputs[index] = input;
+    }
 }
 
 void Node::setOutput(double output) {
@@ -130,11 +132,11 @@ void Node::setError(double error) {
     this->error = error;
 }  
 
-void Node::setForwardNodes(const std::vector<Node*>& nodes) {
+void Node::setForwardNodes(std::vector<Node*> nodes) {
     this->forwardNodes = nodes;
 }
 
-void Node::setPreviousNodes(const std::vector<Node*>& nodes) {
+void Node::setPreviousNodes(std::vector<Node*> nodes) {
     this->previousNodes = nodes;
 }
 
@@ -184,7 +186,7 @@ void Node::addPreviousNode(Node* node) {
 }
 
 void Node::clear() {
-    this->input = 0.0;
+    this->inputs = {};
     this->output = 0.0;
     this->error = 0.0;
     this->gradient = 0.0;
@@ -199,7 +201,11 @@ void Node::clearSynapses() {
 void Node::print() {
     if (this->type == "input") {
         std::cout << "\nNode [" << this->id << "]:" << std::endl;
-        std::cout << "\tInput    -> " << this->input << std::endl;
+        std::cout << "\tInput    -> { ";
+        for (double input : this->getInputs()) {
+            std::cout << input << " ";
+        }
+        std::cout << "}" << std::endl;
         std::cout << "\tOutput   -> " << this->output << std::endl;
         std::cout << "\tError    -> " << this->error << std::endl;
         std::cout << "\tGradient -> " << this->gradient << std::endl;
@@ -210,7 +216,11 @@ void Node::print() {
         std::cout << "}" << std::endl;
     } else if (this->type == "hidden") {
         std::cout << "\nNode [" << this->id << "]:" << std::endl;
-        std::cout << "\tInput    -> " << this->input << std::endl;
+        std::cout << "\tInput    -> { ";
+        for (double input : this->getInputs()) {
+            std::cout << input << " ";
+        }
+        std::cout << "}" << std::endl;
         std::cout << "\tOutput   -> " << this->output << std::endl;
         std::cout << "\tError    -> " << this->error << std::endl;
         std::cout << "\tGradient -> " << this->gradient << std::endl;

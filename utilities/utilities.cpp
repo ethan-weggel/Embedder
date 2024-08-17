@@ -95,3 +95,13 @@ std::unordered_map<std::string, Vector> vectorizeData(std::string input, int sec
 
     return dictionary;
 }
+
+double doubleSum(std::vector<double> inputs) {
+    double sum = 0;
+
+    for (double input : inputs) {
+        sum += input;
+    }
+
+    return sum;
+}

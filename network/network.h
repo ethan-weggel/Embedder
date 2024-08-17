@@ -31,8 +31,8 @@ class Network {
         std::vector<Node*>* getOutputLayer();
 
         // Additional methods
-        std::vector<double> softmax(std::vector<double> outputPreActivation);
-        std::vector<double> ReLU(std::vector<double> inputs);
+        std::vector<double> softmax(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer);
+        void ReLU(std::vector<Node*> inputNodes, std::vector<Node*> outputNodes);
         std::vector<double> crossEntropy();
         void zipInputs(std::vector<Node*>* nodes, std::vector<double> inputs);
         void zipWeights(std::vector<Node*>* nodes, std::vector<std::vector<double>*> weights);
@@ -40,6 +40,7 @@ class Network {
         void setNetwork(std::vector<Node*>* layer, Vector* vector);
         std::vector<double> forwardPropagate();
         std::vector<double> backwardPropagate();
+        void formSynapses();
 
         // Simple display method
         void print();

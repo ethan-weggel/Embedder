@@ -12,7 +12,7 @@ private:
     static int instCnt;
     int id;
     std::string type;
-    double input;
+    std::vector<double> inputs;
     double output;
     double gradient;
     double error;
@@ -34,7 +34,7 @@ public:
     // Getter methods
     int getId();
     std::string getType();
-    double getInput();
+    std::vector<double> getInputs();
     double getOutput();
     double getGradient();
     double getError();
@@ -48,12 +48,13 @@ public:
     // Setter methods
     void setId(int id);
     void setType(const std::string& type);
-    void setInput(double input);
+    void setInput(int index, double input);
+    void setInputs(std::vector<double> inputs);
     void setOutput(double output);
     void setGradient(double gradient);
     void setError(double error);
-    void setForwardNodes(const std::vector<Node*>& nodes);
-    void setPreviousNodes(const std::vector<Node*>& nodes);
+    void setForwardNodes(std::vector<Node*> nodes);
+    void setPreviousNodes(std::vector<Node*> nodes);
     void setWeights(std::vector<double>* newWeights);
     void setWeightsHidden(std::vector<double> newWeights);
     void setWeight(int index, double newWeight);

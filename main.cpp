@@ -20,34 +20,23 @@ int main() {
 
     std::string data = reader.getData();
 
-    std::unordered_map<std::string, Vector> dataLookup = vectorizeData(data, 5);
+    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 5);
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
-    Vector vector = dataLookup["index"];
+    Vector vector = vectors["index"];
 
     std::vector<std::vector<double>*> weights = vector.getWeightsVector();
 
-    int layerSize = static_cast<int>(vector.getHotVector().size());
+    int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {5, 5}, 
+                               {5}, 
                                {layerSize}});
 
-    // network.setNetwork(network.getInputLayer(), &vector);
-    // network.print();
-    // network.forwardPropagate();
-    // network.print();
-
-    // network.setNetwork(network.getInputLayer(), &dataLookup["zygote"]);
-    // network.print();
-    // network.forwardPropagate();
-    // network.print();
-
-    // network.setNetwork(network.getInputLayer(), &vector);
-    // network.print();
-
-    (*network.getHiddenLayer(1))[0]->print();
+    network.setNetwork(network.getInputLayer(), &vector);
+    network.print();
+    network.forwardPropagate();
 
     return 0;
 }
