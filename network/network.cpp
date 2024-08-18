@@ -127,9 +127,9 @@ void Network::reset() {
     this->output = {};
     this->error = {};
 
-    for (Node* node : this->inputLayer) {
-        std::cout << (*node->getWeights()).size() << std::endl;
-    }
+    // for (Node* node : this->inputLayer) {
+    //     std::cout << (*node->getWeights()).size() << std::endl;
+    // }
 
 }
 
