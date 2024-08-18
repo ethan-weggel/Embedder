@@ -1,2 +1,2 @@
 index
-The man ate an apple.
+The man ate an apple. The man ate a pear.

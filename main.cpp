@@ -13,9 +13,9 @@
 #include <random>
 
 void train(Network* network, std::vector<double>* target, int* epochNum) {
-    double learningRate = 0.001;
+    double learningRate = 0.1;
 
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 3; i++) {
         std::vector<double> dist = network->forwardPropagate();
         // printVec(&dist);
         network->backwardPropagate((*target), learningRate);
@@ -28,13 +28,13 @@ void train(Network* network, std::vector<double>* target, int* epochNum) {
 
 int main() {
 
-    int hiddenLayerSize = 3;
+    int hiddenLayerSize = 50;
 
     Reader reader = Reader();
     reader.setPath("data\\index.txt");
 
     Writer writer = Writer();
-    writer.setPath("./output/");
+    writer.setPath("./pre-output/");
     writer.setBaseFileName("vector");
 
     reader.read();
@@ -42,6 +42,14 @@ int main() {
     std::string data = reader.getData();
 
     std::unordered_map<std::string, Vector> vectors = vectorizeData(data, hiddenLayerSize);
+
+    for (const auto& pair : vectors) {
+        std::string key = pair.first;
+        Vector value = pair.second;
+
+        writer.write(key, &value);
+        writer.incrementIndex();
+    }
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
@@ -52,15 +60,18 @@ int main() {
                                {hiddenLayerSize, hiddenLayerSize}, 
                                {layerSize}});
 
-    std::vector<double> the =   {0, 0, 0, 0, 0, 1};
-    std::vector<double> man =   {0, 0, 0, 0, 1, 0};
-    std::vector<double> ate =   {0, 0, 1, 0, 0, 0};
-    std::vector<double> an =    {1, 0, 0, 0, 0, 0};
-    std::vector<double> apple = {0, 1, 0, 0, 0, 0};
+    std::vector<double> an     = {1, 0, 0, 0, 0, 0, 0};
+    std::vector<double> apple  = {0, 1, 0, 0, 0, 0, 0};
+    std::vector<double> ate    = {0, 0, 1, 0, 0, 0, 0};
+    std::vector<double> index  = {0, 0, 0, 1, 0, 0, 0};
+    std::vector<double> man    = {0, 0, 0, 0, 1, 0, 0};
+    std::vector<double> pear   = {0, 0, 0, 0, 0, 1, 0};
+    std::vector<double> the    = {0, 0, 0, 0, 0, 0, 1};
+
 
     int epochNum = 0;
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
         network.setNetwork(network.getInputLayer(), &vectors["The"]);
         train(&network, &man, &epochNum);
 
@@ -73,13 +84,20 @@ int main() {
         network.setNetwork(network.getInputLayer(), &vectors["an"]);
         train(&network, &apple, &epochNum);
 
+        network.setNetwork(network.getInputLayer(), &vectors["The"]);
+        train(&network, &man, &epochNum);
+
         network.setNetwork(network.getInputLayer(), &vectors["man"]);
+        train(&network, &ate, &epochNum);
+
+        network.setNetwork(network.getInputLayer(), &vectors["ate"]);
+        train(&network, &an, &epochNum);
+
+        network.setNetwork(network.getInputLayer(), &vectors["a"]);
+        train(&network, &pear, &epochNum);
+
     }
 
-    std::cout << "Inference: " << std::endl;
-    std::vector<double> dist = network.forwardPropagate();
-
-    printVec(&dist);
     
     for (const auto& pair : vectors) {
         std::string key = pair.first;
