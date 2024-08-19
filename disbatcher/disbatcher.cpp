@@ -27,7 +27,7 @@ std::vector<std::string> Disbatcher::getSubstring(int index) {
     return this->substrings[index];
 }
 
-std::unordered_map<std::string, Vector> Disbatcher::getVectors() {
+std::unordered_map<std::string, Vector>* Disbatcher::getVectors() {
     return this->vectors;
 }
 
@@ -51,13 +51,26 @@ void Disbatcher::setSubstring(int index, std::vector<std::string> substring) {
     this->substrings[index] = substring;
 }
 
-void Disbatcher::setVectors(std::unordered_map<std::string, Vector> vectors) {
+void Disbatcher::setVectors(std::unordered_map<std::string, Vector>* vectors) {
     this->vectors = vectors;
 }
 
 void Disbatcher::parseData(std::string delimiter) {
     if (this->delimiter.empty()) {
         this->delimiter = delimiter;
+    }
+
+    // Replace all newline characters with ". "
+    size_t pos = 0;
+    while ((pos = this->data.find('\n', pos)) != std::string::npos) {
+        this->data.replace(pos, 1, ". ");
+        pos += 2;  // Move past the ". "
+    }
+
+    // Remove double quotes and single quotes
+    pos = 0;
+    while ((pos = this->data.find_first_of("\"'", pos)) != std::string::npos) {
+        this->data.erase(pos, 1);  // Remove the quote character
     }
 
     size_t start = 0;
@@ -74,6 +87,7 @@ void Disbatcher::parseData(std::string delimiter) {
 }
 
 
+
 void Disbatcher::parseBatches(std::string delimiter) {
 
     this->delimiter = " ";
@@ -82,16 +96,16 @@ void Disbatcher::parseBatches(std::string delimiter) {
         std::vector<std::string> substringBatch = {};
 
         size_t start = 0;
-        size_t end = this->data.find(this->delimiter);
+        size_t end = batch.find(this->delimiter);
 
         while (end != std::string::npos) {
-            substringBatch.push_back(this->data.substr(start, end - start));
+            substringBatch.push_back(batch.substr(start, end - start));
             start = end + this->delimiter.length();
-            end = this->data.find(this->delimiter, start);
+            end = batch.find(this->delimiter, start);
         }
 
         // Add the last token
-        substringBatch.push_back(this->data.substr(start));
+        substringBatch.push_back(batch.substr(start));
 
         this->substrings.push_back(substringBatch);
     }
@@ -100,14 +114,12 @@ void Disbatcher::parseBatches(std::string delimiter) {
 
 void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch) {
     int substringBatchSize = substringBatch.size();
-    std::cout << substringBatchSize << std::endl;
     int wordIndex = 0;
 
     while (wordIndex < substringBatchSize-1) {
-        std::cout << substringBatch[wordIndex] << std::endl;
-        network->setNetwork(network->getInputLayer(), &this->vectors[substringBatch[wordIndex]]);
-        network->setTarget(this->vectors[substringBatch[wordIndex+1]].getHotVector());
+        network->setNetwork(network->getInputLayer(), &(*this->vectors)[substringBatch[wordIndex]]);
+        network->setTarget((*this->vectors)[substringBatch[wordIndex+1]].getHotVector());
         wordIndex++;
-    }
+    }  
 
 }

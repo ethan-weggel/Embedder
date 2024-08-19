@@ -48,7 +48,7 @@ int main() {
     disbatcher.parseBatches();
 
     std::unordered_map<std::string, Vector> vectors = vectorizeData(data, hiddenLayerSize);
-    disbatcher.setVectors(vectors);
+    disbatcher.setVectors(&vectors);
 
     for (const auto& pair : vectors) {
         std::string key = pair.first;
@@ -60,7 +60,7 @@ int main() {
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
-    Vector vector = vectors["index"];
+    Vector vector = vectors["index\nThe"];
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},

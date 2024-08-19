@@ -165,7 +165,7 @@ void Network::zipWeights(std::vector<Node*>* nodes, std::vector<std::vector<doub
 }
 
 void Network::setNetwork(std::vector<Node*>* layer, Vector* vector) {
-       
+    
     zipInputs(layer, vector->getHotVector());
     zipWeights(layer, vector->getWeightsVector());
     this->inputLayer = *layer;

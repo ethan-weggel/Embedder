@@ -13,7 +13,7 @@ class Disbatcher {
         std::string data;
         std::vector<std::string> batches;
         std::vector<std::vector<std::string>> substrings;
-        std::unordered_map<std::string, Vector> vectors;
+        std::unordered_map<std::string, Vector>* vectors;
 
 
     public:
@@ -25,7 +25,7 @@ class Disbatcher {
         std::vector<std::string> getBatches();
         std::vector<std::vector<std::string>> getSubStrings();
         std::vector<std::string> getSubstring(int index);
-        std::unordered_map<std::string, Vector> getVectors();
+        std::unordered_map<std::string, Vector>* getVectors();
 
         // Setters
         void setData(std::string newData);
@@ -33,7 +33,7 @@ class Disbatcher {
         void setBatch(int index, std::string batch);
         void setSubstrings(std::vector<std::vector<std::string>> newSubstrings);
         void setSubstring(int index, std::vector<std::string> substring);
-        void setVectors(std::unordered_map<std::string, Vector> vectors);
+        void setVectors(std::unordered_map<std::string, Vector>* vectors);
 
         // Additional Methods
 
