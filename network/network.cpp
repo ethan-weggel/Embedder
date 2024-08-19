@@ -123,6 +123,14 @@ std::vector<Node*>* Network::getOutputLayer() {
     return &outputLayer;
 }
 
+std::vector<double> Network::getTarget() {
+    return this->target;
+}
+
+void Network::setTarget(std::vector<double> newTarget) {
+    this->target = newTarget;
+}
+
 void Network::reset() {
     this->output = {};
     this->error = {};
@@ -298,7 +306,8 @@ std::vector<double> Network::crossEntropy(std::vector<double> softmaxOutput, std
     return errors;
 } 
 
-void Network::backwardPropagate(std::vector<double> targetDistribution, double learningRate) {
+void Network::backwardPropagate(double learningRate) {
+    std::vector<double> targetDistribution = this->target;
     // assume there will always be a hidden layer and an output layer
     std::vector<double> errors = crossEntropy(this->output, targetDistribution);
 

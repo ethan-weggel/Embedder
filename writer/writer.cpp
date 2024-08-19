@@ -23,6 +23,10 @@ void Writer::setBaseFileName(std::string newFileName) {
     this->baseFileName = newFileName;
 }
 
+void Writer::setIndex(int newIndex) {
+    this->index = newIndex;
+}
+
 void Writer::incrementIndex() {
     this->index++;
 }

@@ -1,1 +1,1 @@
-g++ -o main main.cpp ./network/network.cpp ./vector/vector.cpp ./reader/reader.cpp ./node/node.cpp ./utilities/utilities.cpp ./writer/writer.cpp
+g++ -o main main.cpp ./network/network.cpp ./vector/vector.cpp ./reader/reader.cpp ./node/node.cpp ./utilities/utilities.cpp ./writer/writer.cpp ./disbatcher/disbatcher.cpp

@@ -16,6 +16,7 @@ class Network {
 
         std::vector<double> output;
         std::vector<double> error;
+        std::vector<double> target;
 
     public:
         // Default constructor
@@ -29,6 +30,9 @@ class Network {
         std::vector<std::vector<Node*>>* getHiddenLayers();
         std::vector<Node*>* getHiddenLayer(int index);
         std::vector<Node*>* getOutputLayer();
+        std::vector<double> getTarget();
+
+        void setTarget(std::vector<double> newTarget);
 
         // Additional methods
         std::vector<double> softmax(std::vector<Node*> inputLayer, std::vector<Node*> outputLayer);
@@ -39,7 +43,7 @@ class Network {
         void reset();
         void setNetwork(std::vector<Node*>* layer, Vector* vector);
         std::vector<double> forwardPropagate();
-        void backwardPropagate(std::vector<double> targetDistribution, double learningRate);
+        void backwardPropagate(double learningRate);
         std::vector<double> crossEntropy(std::vector<double> softmaxOutput, std::vector<double> targetDistribution);
         void formSynapses();
         std::vector<double> inference();

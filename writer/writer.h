@@ -22,6 +22,7 @@ class Writer {
         // Setters
         void setPath(std::string newPath);
         void setBaseFileName(std::string newFileName);
+        void setIndex(int newIndex);
 
         // Additional Methods
         void incrementIndex();
