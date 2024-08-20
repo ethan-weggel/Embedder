@@ -1,3 +1,5 @@
 *.exe
-/output
-/pre-output
+
+/output/
+
+/pre_output/

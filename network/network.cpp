@@ -28,7 +28,9 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
     }
 
     for (int i = 0; i < this->hiddenLayers.size(); i++) {
+        // std::cout << "hidden layer " << i << std::endl;
         for (int j = 0; j < this->hiddenLayers[i].size(); j++) {
+            // std::cout << "node " << j << std::endl;
             this->hiddenLayers[i][j] = new Node("hidden");
             this->hiddenLayers[i][j]->setBias(initializeBias());
             if (this->hiddenLayers.size() == 1) {
@@ -339,7 +341,7 @@ void Network::backwardPropagate(double learningRate) {
         }
 
         // if there is more than one hidden layer, now we use derivative of ReLU instead of derivative of cross entropy
-        if (currentHiddenLayer > this->hiddenLayers.size()-1) {
+        if (currentHiddenLayer < this->hiddenLayers.size()-1 && currentHiddenLayer != 0) {
             for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
                 int synapseIndex = 0;
                 double dLoss_dHiddenLayerActivation = 0;

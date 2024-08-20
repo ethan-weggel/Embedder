@@ -14,28 +14,25 @@
 #include <random>
 
 void train(Network* network, int* epochNum) {
-    double learningRate = 0.1;
+    double learningRate = 0.001;
 
-    for (int i = 0; i < 100; i++) {
-        std::vector<double> dist = network->forwardPropagate();
-        // printVec(&dist);
-        network->backwardPropagate(learningRate);
-        network->reset();
-    }
+    std::vector<double> dist = network->forwardPropagate();
+    // printVec(&dist);
+    network->backwardPropagate(learningRate);
+    network->reset();
 
     std::cout << "Epoch <" << *epochNum << "> Complete!" << std::endl;
     *epochNum += 1;
 }
 
 int main() {
-
     int hiddenLayerSize = 50;
 
     Reader reader = Reader();
     reader.setPath("data\\index.txt");
 
     Writer writer = Writer();
-    writer.setPath("./pre-output/");
+    writer.setPath("./pre_output/");
     writer.setBaseFileName("vector");
 
     reader.read();
@@ -47,7 +44,7 @@ int main() {
     disbatcher.parseData();
     disbatcher.parseBatches();
 
-    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, hiddenLayerSize);
+    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 128);
     disbatcher.setVectors(&vectors);
 
     for (const auto& pair : vectors) {
@@ -60,17 +57,17 @@ int main() {
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
-    Vector vector = vectors["index\nThe"];
+    Vector vector = vectors["man"];
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {hiddenLayerSize, hiddenLayerSize}, 
+                               {128, 64, 32}, 
                                {layerSize}});
 
     int epochNum = 0;
 
     // disbating each sentence, training
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 60; i++) {
         for (std::vector<std::string> substringBatch : disbatcher.getSubStrings()) {
             disbatcher.disbatch(&network, substringBatch);
             train(&network, &epochNum);

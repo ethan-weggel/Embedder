@@ -116,6 +116,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import os
 import importlib.util
+from sklearn.metrics.pairwise import cosine_similarity
 
 def import_script(script_path):
     spec = importlib.util.spec_from_file_location("module.name", script_path)
@@ -167,6 +168,14 @@ else:
     else:
         # Combine all embeddings into a single array
         combined_embeddings = np.vstack(embeddings)
+
+        cosine_sim_matrix = cosine_similarity(combined_embeddings)
+
+        # Print the cosine similarity matrix with word labels
+        print("Cosine Similarity Matrix:")
+        print("\t" + "\t".join(words))
+        for i, word in enumerate(words):
+            print(word + "\t" + "\t".join(f"{cosine_sim_matrix[i][j]:.2f}" for j in range(len(words))))
 
         # Reduce dimensions to 3D using PCA
         pca = PCA(n_components=3)
