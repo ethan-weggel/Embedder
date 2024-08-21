@@ -13,23 +13,11 @@
 #include <unordered_map>
 #include <random>
 
-void train(Network* network, int* epochNum) {
-    double learningRate = 0.001;
-
-    std::vector<double> dist = network->forwardPropagate();
-    // printVec(&dist);
-    network->backwardPropagate(learningRate);
-    network->reset();
-
-    std::cout << "Epoch <" << *epochNum << "> Complete!" << std::endl;
-    *epochNum += 1;
-}
-
 int main() {
     int hiddenLayerSize = 50;
 
     Reader reader = Reader();
-    reader.setPath("data\\index.txt");
+    reader.setPath("data\\test.txt");
 
     Writer writer = Writer();
     writer.setPath("./pre_output/");
@@ -61,17 +49,19 @@ int main() {
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {128, 64, 32}, 
+                               {256, 128, 128, 64}, 
                                {layerSize}});
 
     int epochNum = 0;
+    int totalEpochs = 50;
 
-    // disbating each sentence, training
-    for (int i = 0; i < 60; i++) {
-        for (std::vector<std::string> substringBatch : disbatcher.getSubStrings()) {
-            disbatcher.disbatch(&network, substringBatch);
-            train(&network, &epochNum);
+    for (int i = 0; i < totalEpochs; i++) {
+
+        for (const auto& substringBatch : disbatcher.getSubStrings()) {
+            disbatcher.disbatch(&network, substringBatch, 0.0001);
         }
+
+        std::cout << "Epoch <" << i << "> Complete!" << std::endl;
     } 
 
     writer.setPath("./output/");

@@ -1,5 +1,6 @@
 #include "disbatcher.h"
 #include "../network/network.h"
+#include "../utilities/utilities.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -112,13 +113,18 @@ void Disbatcher::parseBatches(std::string delimiter) {
 
 }
 
-void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch) {
+void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate) {
     int substringBatchSize = substringBatch.size();
     int wordIndex = 0;
 
-    while (wordIndex < substringBatchSize-1) {
+    while (wordIndex < substringBatchSize-2) {
         network->setNetwork(network->getInputLayer(), &(*this->vectors)[substringBatch[wordIndex]]);
         network->setTarget((*this->vectors)[substringBatch[wordIndex+1]].getHotVector());
+        // network->print();
+        std::vector<double> dist = network->forwardPropagate();
+        // printVec(&dist);
+        network->backwardPropagate(learningRate);
+        network->reset();
         wordIndex++;
     }  
 

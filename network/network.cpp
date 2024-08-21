@@ -28,9 +28,7 @@ Network::Network(std::vector<std::vector<int>> layerDim) {
     }
 
     for (int i = 0; i < this->hiddenLayers.size(); i++) {
-        // std::cout << "hidden layer " << i << std::endl;
         for (int j = 0; j < this->hiddenLayers[i].size(); j++) {
-            // std::cout << "node " << j << std::endl;
             this->hiddenLayers[i][j] = new Node("hidden");
             this->hiddenLayers[i][j]->setBias(initializeBias());
             if (this->hiddenLayers.size() == 1) {
@@ -137,9 +135,9 @@ void Network::reset() {
     this->output = {};
     this->error = {};
 
-    // for (Node* node : this->inputLayer) {
-    //     std::cout << (*node->getWeights()).size() << std::endl;
-    // }
+    for (Node* node : this->inputLayer) {
+        node->clear();
+    }
 
 }
 
@@ -324,7 +322,8 @@ void Network::backwardPropagate(double learningRate) {
 
     // this is to find the gradients of all hidden nodes based on the previous gradients
     int currentHiddenLayer = this->hiddenLayers.size()-1;
-    while (currentHiddenLayer != 0) {
+    while (currentHiddenLayer >= 0) {
+        // std::cout << currentHiddenLayer << std::endl;
 
         // if hidden layer is closest to output layer
         if (currentHiddenLayer == this->hiddenLayers.size()-1) {
@@ -341,7 +340,7 @@ void Network::backwardPropagate(double learningRate) {
         }
 
         // if there is more than one hidden layer, now we use derivative of ReLU instead of derivative of cross entropy
-        if (currentHiddenLayer < this->hiddenLayers.size()-1 && currentHiddenLayer != 0) {
+        else {
             for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
                 int synapseIndex = 0;
                 double dLoss_dHiddenLayerActivation = 0;
@@ -368,6 +367,12 @@ void Network::backwardPropagate(double learningRate) {
     for (Node* node : this->inputLayer) {
         int synapseIndex = 0;
         for (double weight : (*node->getWeights())) {
+            if (weight > 5) {
+                node->setWeight(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            }
+            if (weight < 0.005) {
+                node->setWeight(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            }
             node->setWeight(synapseIndex, weight - (learningRate * (node->getInputs()[0] * this->hiddenLayers[0][synapseIndex]->getGradient())));
             if (node->getOutput() > 0) {
                 node->setBias(node->getBias() - (learningRate * 1));
@@ -384,6 +389,12 @@ void Network::backwardPropagate(double learningRate) {
             for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
                 int synapseIndex = 0;
                 for (double weight : iNode->getWeightsHidden()) {
+                    if (weight > 5) {
+                        iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+                    }
+                    if (weight < 0.005) {
+                        iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+                    }
                     iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->hiddenLayers[currentHiddenLayer+1][synapseIndex]->getGradient())));
                     if (iNode->getOutput() > 0) {
                         iNode->setBias(iNode->getBias() - (learningRate * (iNode->getGradient() * 1)));
@@ -399,6 +410,12 @@ void Network::backwardPropagate(double learningRate) {
     for (Node* iNode : this->hiddenLayers[hiddenLayers.size()-1]) {
         int synapseIndex = 0;
         for (double weight : iNode->getWeightsHidden()) {
+            if (weight > 5) {
+                iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            }
+            if (weight < 0.005) {
+                iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            }
             iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->outputLayer[synapseIndex]->getGradient())));
             if (iNode->getOutput() > 0) {
                 iNode->setBias(iNode->getBias() - (learningRate * this->outputLayer[synapseIndex]->getGradient()));
