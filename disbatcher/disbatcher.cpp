@@ -61,33 +61,23 @@ void Disbatcher::parseData(std::string delimiter) {
         this->delimiter = delimiter;
     }
 
-    // Replace all newline characters with ". "
-    size_t pos = 0;
-    while ((pos = this->data.find('\n', pos)) != std::string::npos) {
-        this->data.replace(pos, 1, ". ");
-        pos += 2;  // Move past the ". "
-    }
-
-    // Remove double quotes and single quotes
-    pos = 0;
-    while ((pos = this->data.find_first_of("\"'", pos)) != std::string::npos) {
-        this->data.erase(pos, 1);  // Remove the quote character
-    }
-
     size_t start = 0;
     size_t end = this->data.find(this->delimiter);
 
     while (end != std::string::npos) {
-        this->batches.push_back(this->data.substr(start, end - start));
+        // Include the period in the substring
+        this->batches.push_back(this->data.substr(start, end - start + 1));
+
+        // Move start to the character after the ". "
         start = end + this->delimiter.length();
         end = this->data.find(this->delimiter, start);
     }
 
-    // Add the last token
-    this->batches.push_back(this->data.substr(start));
+    // Add the last token, if any
+    if (start < this->data.length()) {
+        this->batches.push_back(this->data.substr(start));
+    }
 }
-
-
 
 void Disbatcher::parseBatches(std::string delimiter) {
 
@@ -113,19 +103,52 @@ void Disbatcher::parseBatches(std::string delimiter) {
 
 }
 
-void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate) {
+// void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch) {
+//     int substringBatchSize = substringBatch.size();
+//     int wordIndex = 0;
+
+//     while (wordIndex < substringBatchSize-1) {
+//         std::cout << "INPUT WORD [" << substringBatch[wordIndex] << "]" << std::endl;
+//         std::cout << "OUTPUT WORD [" << substringBatch[wordIndex+1] << "]" << std::endl;
+//         network->setNetwork(network->getInputLayer(), &(*this->vectors)[substringBatch[wordIndex]]);
+//         network->setTarget((*this->vectors)[substringBatch[wordIndex+1]].getHotVector());
+//         (*this->vectors)[substringBatch[wordIndex+1]].printHot();
+//         std::vector<double> dist = network->forwardPropagate();
+//         // std::cout << "1" << std::endl;
+//         network->backwardPropagate(learningRate);
+//         // std::cout << "2" << std::endl;
+//         network->reset();
+//         wordIndex++;
+//     }  
+
+// }
+
+void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch) {
     int substringBatchSize = substringBatch.size();
     int wordIndex = 0;
 
-    while (wordIndex < substringBatchSize-2) {
-        network->setNetwork(network->getInputLayer(), &(*this->vectors)[substringBatch[wordIndex]]);
-        network->setTarget((*this->vectors)[substringBatch[wordIndex+1]].getHotVector());
-        // network->print();
+    while (wordIndex < substringBatchSize-1) {
+        std::string inputWord = substringBatch[wordIndex];
+        std::string outputWord = substringBatch[wordIndex+1];
+        // std::cout << "INPUT WORD [" << inputWord << "]" << std::endl;
+        // std::cout << "OUTPUT WORD [" << outputWord << "]" << std::endl;
+
+        if (this->vectors->find(inputWord) == this->vectors->end()) {
+            std::cerr << "Key not found in vectors: " << inputWord << std::endl;
+            return;
+        }
+        if (this->vectors->find(outputWord) == this->vectors->end()) {
+            std::cerr << "Key not found in vectors: " << outputWord << std::endl;
+            return;
+        }
+
+        network->setNetwork(network->getInputLayer(), &(*this->vectors)[inputWord]);
+        network->setTarget((*this->vectors)[outputWord].getHotVector());
+        // (*this->vectors)[outputWord].printHot();
+
         std::vector<double> dist = network->forwardPropagate();
-        // printVec(&dist);
         network->backwardPropagate(learningRate);
         network->reset();
         wordIndex++;
     }  
-
 }

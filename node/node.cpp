@@ -122,6 +122,9 @@ void Node::setInput(int index, double input) {
     if (index == -1) {
         this->inputs.push_back(input);
     } else {
+        if (this->inputs.size() == 0) {
+            this->inputs.resize(1);
+        }
         this->inputs[index] = input;
     }
 }

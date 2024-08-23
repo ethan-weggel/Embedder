@@ -132,12 +132,13 @@ void Network::setTarget(std::vector<double> newTarget) {
 }
 
 void Network::reset() {
-    this->output = {};
-    this->error = {};
 
     for (Node* node : this->inputLayer) {
         node->clear();
     }
+
+    this->output = {};
+    this->error = {};
 
 }
 
@@ -146,7 +147,8 @@ void Network::zipInputs(std::vector<Node*>* nodes, std::vector<double> inputs) {
     int iter = 0;
 
     while (iter < iterLen) {
-        (*nodes)[iter]->setInput(-1, inputs[iter]);
+        // (*nodes)[iter]->clear();
+        (*nodes)[iter]->setInput(0, inputs[iter]);
         if ((*nodes)[iter]->getType() == "input") {
             (*nodes)[iter]->setOutput(inputs[iter]);
         }
@@ -307,9 +309,8 @@ std::vector<double> Network::crossEntropy(std::vector<double> softmaxOutput, std
 } 
 
 void Network::backwardPropagate(double learningRate) {
-    std::vector<double> targetDistribution = this->target;
-    // assume there will always be a hidden layer and an output layer
-    std::vector<double> errors = crossEntropy(this->output, targetDistribution);
+
+    std::vector<double> errors = crossEntropy(this->output, this->target);
 
     // this is to find the gradients of the nodes in the output layer
     int nodeIndex = 0;
@@ -319,6 +320,8 @@ void Network::backwardPropagate(double learningRate) {
         nodeIndex++;
 
     }
+
+    // std::cout << "debug 2" << std::endl;
 
     // this is to find the gradients of all hidden nodes based on the previous gradients
     int currentHiddenLayer = this->hiddenLayers.size()-1;
@@ -361,18 +364,20 @@ void Network::backwardPropagate(double learningRate) {
         }
     }
 
+    // std::cout << "debug 3" << std::endl;
+
     // now that we've calculated gradients, we optimize the weights
 
     // iterate through weights between input layer and hidden layer (assume there will always be one hidden layer if not more)
     for (Node* node : this->inputLayer) {
         int synapseIndex = 0;
         for (double weight : (*node->getWeights())) {
-            if (weight > 5) {
-                node->setWeight(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-            }
-            if (weight < 0.005) {
-                node->setWeight(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-            }
+            // if (weight > 5) {
+            //     node->setWeight(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            // }
+            // if (weight < 0.005) {
+            //     node->setWeight(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            // }
             node->setWeight(synapseIndex, weight - (learningRate * (node->getInputs()[0] * this->hiddenLayers[0][synapseIndex]->getGradient())));
             if (node->getOutput() > 0) {
                 node->setBias(node->getBias() - (learningRate * 1));
@@ -380,6 +385,8 @@ void Network::backwardPropagate(double learningRate) {
             synapseIndex++;
         }
     }
+
+    // std::cout << "debug 4" << std::endl;
 
     // iterate through weights between hidden layers if there is more than one
     int numhiddenLayers = this->hiddenLayers.size();
@@ -389,12 +396,12 @@ void Network::backwardPropagate(double learningRate) {
             for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
                 int synapseIndex = 0;
                 for (double weight : iNode->getWeightsHidden()) {
-                    if (weight > 5) {
-                        iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-                    }
-                    if (weight < 0.005) {
-                        iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-                    }
+                    // if (weight > 5) {
+                    //     iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+                    // }
+                    // if (weight < 0.005) {
+                    //     iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+                    // }
                     iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->hiddenLayers[currentHiddenLayer+1][synapseIndex]->getGradient())));
                     if (iNode->getOutput() > 0) {
                         iNode->setBias(iNode->getBias() - (learningRate * (iNode->getGradient() * 1)));
@@ -406,16 +413,18 @@ void Network::backwardPropagate(double learningRate) {
         }
     }
 
+    // std::cout << "debug 5" << std::endl;
+
     // iterate through weights between last hidden layer and output layer
     for (Node* iNode : this->hiddenLayers[hiddenLayers.size()-1]) {
         int synapseIndex = 0;
         for (double weight : iNode->getWeightsHidden()) {
-            if (weight > 5) {
-                iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-            }
-            if (weight < 0.005) {
-                iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
-            }
+            // if (weight > 5) {
+            //     iNode->setWeightHidden(synapseIndex, weight - (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            // }
+            // if (weight < 0.005) {
+            //     iNode->setWeightHidden(synapseIndex, weight + (4.9 * this->hiddenLayers[0][synapseIndex]->getGradient()));
+            // }
             iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->outputLayer[synapseIndex]->getGradient())));
             if (iNode->getOutput() > 0) {
                 iNode->setBias(iNode->getBias() - (learningRate * this->outputLayer[synapseIndex]->getGradient()));
@@ -423,6 +432,8 @@ void Network::backwardPropagate(double learningRate) {
             synapseIndex++;
         }
     }
+
+    // std::cout << "debug 6" << std::endl;
 
 }
 
