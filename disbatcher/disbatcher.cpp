@@ -103,26 +103,6 @@ void Disbatcher::parseBatches(std::string delimiter) {
 
 }
 
-// void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch) {
-//     int substringBatchSize = substringBatch.size();
-//     int wordIndex = 0;
-
-//     while (wordIndex < substringBatchSize-1) {
-//         std::cout << "INPUT WORD [" << substringBatch[wordIndex] << "]" << std::endl;
-//         std::cout << "OUTPUT WORD [" << substringBatch[wordIndex+1] << "]" << std::endl;
-//         network->setNetwork(network->getInputLayer(), &(*this->vectors)[substringBatch[wordIndex]]);
-//         network->setTarget((*this->vectors)[substringBatch[wordIndex+1]].getHotVector());
-//         (*this->vectors)[substringBatch[wordIndex+1]].printHot();
-//         std::vector<double> dist = network->forwardPropagate();
-//         // std::cout << "1" << std::endl;
-//         network->backwardPropagate(learningRate);
-//         // std::cout << "2" << std::endl;
-//         network->reset();
-//         wordIndex++;
-//     }  
-
-// }
-
 void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch) {
     int substringBatchSize = substringBatch.size();
     int wordIndex = 0;
@@ -130,8 +110,8 @@ void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBa
     while (wordIndex < substringBatchSize-1) {
         std::string inputWord = substringBatch[wordIndex];
         std::string outputWord = substringBatch[wordIndex+1];
-        // std::cout << "INPUT WORD [" << inputWord << "]" << std::endl;
-        // std::cout << "OUTPUT WORD [" << outputWord << "]" << std::endl;
+        // std::cout << inputWord << std::endl;
+        // std::cout << outputWord << std::endl;
 
         if (this->vectors->find(inputWord) == this->vectors->end()) {
             std::cerr << "Key not found in vectors: " << inputWord << std::endl;
@@ -142,12 +122,16 @@ void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBa
             return;
         }
 
+
         network->setNetwork(network->getInputLayer(), &(*this->vectors)[inputWord]);
         network->setTarget((*this->vectors)[outputWord].getHotVector());
-        // (*this->vectors)[outputWord].printHot();
 
-        std::vector<double> dist = network->forwardPropagate();
-        network->backwardPropagate(learningRate);
+        for (int i = 0; i < 100; i++) {
+            std::vector<double> dist = network->forwardPropagate();
+            // printVec(&dist);
+            network->backwardPropagate(learningRate);
+        }
+
         network->reset();
         wordIndex++;
     }  

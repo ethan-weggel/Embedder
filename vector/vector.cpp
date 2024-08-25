@@ -62,7 +62,7 @@ void Vector::printWeight() {
 
 void Vector::printHot() {
     std::cout << "Current Vector[hot]: ";
-    for (const int currentInteger : this->hotVector) {
+    for (const double currentInteger : this->hotVector) {
         std::cout << currentInteger << " ";
     }
     std::cout << std::endl;

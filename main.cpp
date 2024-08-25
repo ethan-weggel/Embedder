@@ -14,7 +14,6 @@
 #include <random>
 
 int main() {
-    int hiddenLayerSize = 50;
 
     Reader reader = Reader();
     reader.setPath("data\\test.txt");
@@ -32,7 +31,15 @@ int main() {
     disbatcher.parseData();
     disbatcher.parseBatches();
 
-    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 50);
+    // std::cout << disbatcher.getBatches().size() << std::endl;
+    // for (std::vector<std::string> strings : disbatcher.getSubStrings()) {
+    //     for (std::string subStr : strings) {
+    //         std::cout << subStr << std::endl;
+    //     }
+    //     std::cout << std::endl;
+    // }
+
+    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 3);
     disbatcher.setVectors(&vectors);
 
     for (const auto& pair : vectors) {
@@ -45,22 +52,21 @@ int main() {
 
     // this key will always be prsent after parsing
     // will allow network to be allocated and built
-    Vector vector = vectors["man"];
+    Vector vector = vectors["man."];
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {50}, 
+                               {2}, 
                                {layerSize}});
 
 
     int epochNum = 0;
-    int totalEpochs = 100;
+    int totalEpochs = 250;
 
     for (int i = 0; i < totalEpochs; i++) {
 
         for (const auto& substringBatch : disbatcher.getSubStrings()) {
-            // std::cout << substringBatch.size() << std::endl;
-            disbatcher.disbatch(&network, substringBatch, 0.001, epochNum);
+            disbatcher.disbatch(&network, substringBatch, 1, epochNum);
         }
         epochNum++;
 

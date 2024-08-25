@@ -64,7 +64,7 @@ std::vector<double> initializeOneHotVectors(std::vector<std::string> uniqueWords
 
         auto it = std::find(uniqueWords.begin(), uniqueWords.end(), word);
         int index = std::distance(uniqueWords.begin(), it);
-        hotVector[index] = 1;
+        hotVector[index] = 1.0;
 
         return hotVector;
 }
