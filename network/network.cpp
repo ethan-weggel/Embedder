@@ -373,7 +373,7 @@ void Network::backwardPropagate(double learningRate) {
     for (Node* node : this->inputLayer) {
         int synapseIndex = 0;
         for (double weight : (*node->getWeights())) {
-            node->setWeight(synapseIndex, weight - (learningRate * (node->getInputs()[0] * this->hiddenLayers[0][synapseIndex]->getGradient())));
+            node->setWeight(synapseIndex, weight - (10 * learningRate * (node->getInputs()[0] * this->hiddenLayers[0][synapseIndex]->getGradient())));
             node->setBias(node->getBias() - (learningRate * 1));
             synapseIndex++;
         }
@@ -387,7 +387,7 @@ void Network::backwardPropagate(double learningRate) {
             for (Node* iNode : this->hiddenLayers[currentHiddenLayer]) {
                 int synapseIndex = 0;
                 for (double weight : iNode->getWeightsHidden()) {
-                    iNode->setWeightHidden(synapseIndex, weight - (learningRate * (iNode->getOutput() * this->hiddenLayers[currentHiddenLayer+1][synapseIndex]->getGradient())));
+                    iNode->setWeightHidden(synapseIndex, weight - (10 * learningRate * (iNode->getOutput() * this->hiddenLayers[currentHiddenLayer+1][synapseIndex]->getGradient())));
                     iNode->setBias(iNode->getBias() - (learningRate * (iNode->getGradient() * 1)));
                     synapseIndex++;
                 }

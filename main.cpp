@@ -39,7 +39,7 @@ int main() {
     //     std::cout << std::endl;
     // }
 
-    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 3);
+    std::unordered_map<std::string, Vector> vectors = vectorizeData(data, 16);
     disbatcher.setVectors(&vectors);
 
     for (const auto& pair : vectors) {
@@ -56,17 +56,17 @@ int main() {
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {2}, 
+                               {16, 16, 16}, 
                                {layerSize}});
 
 
     int epochNum = 0;
-    int totalEpochs = 250;
+    int totalEpochs = 50;
 
     for (int i = 0; i < totalEpochs; i++) {
 
         for (const auto& substringBatch : disbatcher.getSubStrings()) {
-            disbatcher.disbatch(&network, substringBatch, 1, epochNum);
+            disbatcher.disbatch(&network, substringBatch, 0.1, epochNum);
         }
         epochNum++;
 

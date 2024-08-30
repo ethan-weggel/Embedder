@@ -126,7 +126,7 @@ void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBa
         network->setNetwork(network->getInputLayer(), &(*this->vectors)[inputWord]);
         network->setTarget((*this->vectors)[outputWord].getHotVector());
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             std::vector<double> dist = network->forwardPropagate();
             // printVec(&dist);
             network->backwardPropagate(learningRate);
