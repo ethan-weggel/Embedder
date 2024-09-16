@@ -52,7 +52,7 @@ def print_cosine_similarity_matrix(model):
 
 # Main function
 def main():
-    file_path = 'data\\index.txt'  # Replace with the path to your text file
+    file_path = 'data\\test.txt'  # Replace with the path to your text file
     sentences = read_file(file_path)
     model = train_word2vec(sentences)
     plot_embeddings_3d(model)

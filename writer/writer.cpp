@@ -32,45 +32,42 @@ void Writer::incrementIndex() {
 }
 
 void Writer::write(std::string word, Vector* vector) {
-    std::string fullFileName = this->relativeFolderPath + this->baseFileName + "-" + std::to_string(this->index) + ".py";
+    std::string fullFileName = this->relativeFolderPath + this->baseFileName + "-" + std::to_string(this->index) + ".csv";
 
 
     std::ofstream vectorFile(fullFileName);
 
-    vectorFile << "word = \"" << word << "\"\n";
+    vectorFile << "word%" << word << "\n";
     
     // Write hot vector
     std::vector<double> hotVector = vector->getHotVector();
     int hotSize = hotVector.size();
-    vectorFile << "hotVector = " << "[";
+    vectorFile << "hotVector%";
     for (int i = 0; i < hotSize; ++i) {
         vectorFile << hotVector[i];
         if (i < hotSize - 1) {
-            vectorFile << ", ";
+            vectorFile << ",";
         }
     }
-    vectorFile << "]\n";
+    vectorFile << "\n";
 
     // Write weight vectors
     std::vector<std::vector<double>*> weightVector = vector->getWeightsVector();
     int numWeightVectors = weightVector.size();
 
-    vectorFile << "weightVector = " <<"[";
+    vectorFile << "weightVector%";
     for (int i = 0; i < numWeightVectors; ++i) {
-        vectorFile << "[";
         int subVectorSize = weightVector[i]->size();
         for (int j = 0; j < subVectorSize; ++j) {
             vectorFile << (*weightVector[i])[j];
             if (j < subVectorSize - 1) {
-                vectorFile << ", ";
+                vectorFile << ",";
             }
         }
-        vectorFile << "]";
         if (i < numWeightVectors - 1) {
-            vectorFile << ",\n";
+            vectorFile << "&";
         }
     }
-    vectorFile << "]";
 
     vectorFile.close();
 }

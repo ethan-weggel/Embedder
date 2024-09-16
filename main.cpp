@@ -50,13 +50,13 @@ int main() {
         writer.incrementIndex();
     }
 
-    // this key will always be prsent after parsing
-    // will allow network to be allocated and built
+    // this key needs to exist for a word tha is in corpus of data
+    // in order for network to be allocated and constructed
     Vector vector = vectors["man."];
     int layerSize = vector.getHotVector().size();
 
     Network network = Network({{layerSize},
-                               {16, 16, 16}, 
+                               {16, 16, 16, 16}, 
                                {layerSize}});
 
 
