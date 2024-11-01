@@ -103,7 +103,7 @@ void Disbatcher::parseBatches(std::string delimiter) {
 
 }
 
-void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch) {
+void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch, int iterationsPerFeature) {
     int substringBatchSize = substringBatch.size();
     int wordIndex = 0;
 
@@ -126,9 +126,9 @@ void Disbatcher::disbatch(Network* network, std::vector<std::string> substringBa
         network->setNetwork(network->getInputLayer(), &(*this->vectors)[inputWord]);
         network->setTarget((*this->vectors)[outputWord].getHotVector());
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < iterationsPerFeature; i++) {
             std::vector<double> dist = network->forwardPropagate();
-            // printVec(&dist);
+            printVec(&dist);
             network->backwardPropagate(learningRate);
         }
 

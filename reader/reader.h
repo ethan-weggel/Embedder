@@ -1,5 +1,5 @@
 #ifndef READER_H
-#define NODE_H
+#define READER_H
 
 #include <vector>
 #include <string>

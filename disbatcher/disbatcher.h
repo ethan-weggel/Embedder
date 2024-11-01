@@ -49,7 +49,7 @@ class Disbatcher {
         // batchIndex tells the network to start in the substring batch with that index and that index+1
         // then disbatch returns the index it is at so that the function can be called again
         // and the network trains sequentially
-        void disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch);
+        void disbatch(Network* network, std::vector<std::string> substringBatch, double learningRate, int epoch, int iterationsPerFeature);
 
 };
 
