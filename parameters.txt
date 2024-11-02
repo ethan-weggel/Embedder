@@ -1,4 +1,5 @@
-node-layers <64 64>
-learning-alpha <0.0015>
-epochs <10>
-iterations <1>
+node-layers <4>
+learning-alpha <0.0000000015>
+epochs <4>
+iterations <5>
+file-name <llm_test >

@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <random>
+#include <format>
 
 int main() {
     ParameterParser parameterParser = ParameterParser();
@@ -27,7 +28,11 @@ int main() {
     // parameterParser.print();
 
     Reader reader = Reader();
-    reader.setPath("data\\pointblank.txt");
+    std::string readerFileName = std::any_cast<std::string>(parameters["file-name"]);
+    std::ostringstream formattedFilePath;
+    formattedFilePath << "data/" << readerFileName << ".txt";
+    std::string finalPath = formattedFilePath.str();
+    reader.setPath(finalPath);
 
     Writer writer = Writer();
     writer.setPath("./pre_output/");

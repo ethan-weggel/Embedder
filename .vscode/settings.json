@@ -48,6 +48,11 @@
         "set": "cpp",
         "sstream": "cpp",
         "map": "cpp",
-        "any": "cpp"
+        "any": "cpp",
+        "charconv": "cpp",
+        "ctime": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
     }
 }

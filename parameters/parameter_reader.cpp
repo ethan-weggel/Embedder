@@ -15,6 +15,8 @@ ParameterParser::ParameterParser() {
     parameters["node-layers"] = std::vector<int>{};
     parameters["learning-alpha"] = 0.0f;
     parameters["epochs"] = 0;
+    parameters["iterations"] = 0;
+    parameters["file-name"] = "";
     this->path = "";
     this->delimiter = "";
 }
@@ -81,6 +83,10 @@ void ParameterParser::parseParameters(const std::string& rawData) {
             int iterations;
             lineStream >> iterations;
             parameters["iterations"] = iterations;
+        } else if (key == "file-name") {
+            std::string fileName;
+            lineStream >> fileName;
+            parameters["file-name"] = fileName;
         }
     }
     this->parameters = parameters;
